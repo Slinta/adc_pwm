@@ -49,6 +49,10 @@ DMA_HandleTypeDef hdma_adc1;
 
 /* USER CODE BEGIN PV */
 u_int8_t buf[20] = "Hello\r\n";
+uint16_t adcData[1];
+uint32_t adcData_[1];
+uint32_t adcResult;
+char string[20];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,7 +102,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&adcData, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,8 +110,21 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	CDC_Transmit_FS(buf, 7);
-	HAL_Delay(500);
+	  HAL_ADC_Start(&hadc1);
+
+	  HAL_ADC_PollForConversion(&hadc1, 100);
+
+	  adcResult = HAL_ADC_GetValue(&hadc1);
+
+	  HAL_ADC_Stop(&hadc1);
+
+	  sprintf(string, "%lu", adcResult);
+
+	  CDC_Transmit_FS((uint8_t*)string, strlen(string));
+
+	  CDC_Transmit_FS(buf, 7);
+
+	  HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
